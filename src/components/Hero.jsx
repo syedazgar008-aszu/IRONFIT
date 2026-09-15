@@ -63,8 +63,11 @@ export default function Hero({ onBook }) {
             background: "rgba(255,255,255,0.04)", color: C.text, border: `1px solid ${C.borderLight}`, borderRadius: 10,
             padding: "15px 28px", fontSize: 15, fontWeight: 600, cursor: "pointer",
             display: "flex", alignItems: "center", gap: 8, fontFamily: "'Inter', sans-serif",
+            position: "relative", overflow: "hidden",
           }}>
-            <Play size={15} /> Watch Video
+            <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+              <Play size={15} /> Watch Video
+            </span>
           </button>
         </div>
       </div>
