@@ -69,11 +69,12 @@ export default function Reviews() {
                 </div>
                 <textarea required placeholder="Your experience..." rows={3} value={form.Message}
                   onChange={(e) => setForm({ ...form, Message: e.target.value })} style={{ ...inputStyle, resize: "vertical" }} />
-                <button type="submit" style={{
-                  background: C.green, color: "#0d1210", border: "none", borderRadius: 8,
+                <button type="submit" className="ironfit-btn" style={{
+                  background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`, color: "#0d1210", border: "none", borderRadius: 8,
                   padding: "11px 0", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  position: "relative", overflow: "hidden",
                 }}>
-                  Submit Review
+                  <span style={{ position: "relative", zIndex: 1 }}>Submit Review</span>
                 </button>
               </form>
             )}

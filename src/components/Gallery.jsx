@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { C, heading } from "../theme";
 import { apiGet, DEMO } from "../api";
-import { useReveal, revealStyle } from "../hooks/useReveal";
+import { useReveal, revealStyle, staggerStyle } from "../hooks/useReveal";
 
 const DEMO_GALLERY = [
-  { ID: "1", Category: "Gym", ImageURL: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500&auto=format&fit=crop" },
-  { ID: "2", Category: "Classes", ImageURL: "https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb?q=80&w=500&auto=format&fit=crop" },
-  { ID: "3", Category: "Gym", ImageURL: "https://images.unsplash.com/photo-1637666556256-1e58f80b6a80?q=80&w=500&auto=format&fit=crop" },
-  { ID: "4", Category: "Community", ImageURL: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=500&auto=format&fit=crop" },
-  { ID: "5", Category: "Classes", ImageURL: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=500&auto=format&fit=crop" },
-  { ID: "6", Category: "Gym", ImageURL: "https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=500&auto=format&fit=crop" },
+  { ID: "1", Category: "Gym", ImageURL: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=65&w=420&auto=format&fit=crop" },
+  { ID: "2", Category: "Classes", ImageURL: "https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb?q=65&w=420&auto=format&fit=crop" },
+  { ID: "3", Category: "Gym", ImageURL: "https://images.unsplash.com/photo-1637666556256-1e58f80b6a80?q=65&w=420&auto=format&fit=crop" },
+  { ID: "4", Category: "Community", ImageURL: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=65&w=420&auto=format&fit=crop" },
+  { ID: "5", Category: "Classes", ImageURL: "https://images.unsplash.com/photo-1518611012118-696072aa579a?q=65&w=420&auto=format&fit=crop" },
+  { ID: "6", Category: "Gym", ImageURL: "https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=65&w=420&auto=format&fit=crop" },
 ];
 
 const TABS = ["All", "Gym", "Classes", "Community"];
@@ -39,7 +39,7 @@ export default function Gallery() {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             {TABS.map((t) => (
-              <button key={t} onClick={() => setTab(t)} style={{
+              <button key={t} onClick={() => setTab(t)} className="gallery-tab" style={{
                 background: tab === t ? C.green : "transparent",
                 color: tab === t ? "#0d1210" : C.muted,
                 border: tab === t ? "none" : `1px solid ${C.border}`,
@@ -53,14 +53,26 @@ export default function Gallery() {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
-          {filtered.map((img) => (
-            <div key={img.ID} style={{
+          {filtered.map((img, i) => (
+            <div key={img.ID} className="gallery-item" style={{
               aspectRatio: "1/1", borderRadius: 12, overflow: "hidden",
-              backgroundImage: `url('${img.ImageURL}')`, backgroundSize: "cover", backgroundPosition: "center",
-            }} />
+              ...staggerStyle(true, i, 40, 300), // re-plays on every filter switch for a lively feel
+            }}>
+              <div className="gallery-img" style={{
+                width: "100%", height: "100%",
+                backgroundImage: `url('${img.ImageURL}')`, backgroundSize: "cover", backgroundPosition: "center",
+              }} />
+            </div>
           ))}
         </div>
       </div>
+
+      <style>{`
+        .gallery-tab { transition: transform .2s ease, background .2s ease, color .2s ease; }
+        .gallery-tab:hover { transform: translateY(-1px); }
+        .gallery-img { transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+        .gallery-item:hover .gallery-img { transform: scale(1.1); }
+      `}</style>
     </section>
   );
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { C, heading } from "../theme";
 import { apiGet, DEMO } from "../api";
-import { useReveal, revealStyle } from "../hooks/useReveal";
+import { useReveal, revealStyle, staggerStyle } from "../hooks/useReveal";
 
 const DEMO_PLANS = [
   { ID: "1", Name: "Basic", Price: 2499, Duration: "month", Popular: false,
@@ -35,17 +35,18 @@ export default function Plans({ onBook }) {
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 22 }}>
-          {plans.map((p) => {
+          {plans.map((p, i) => {
             const popular = p.Popular === true || p.Popular === "TRUE";
             const features = String(p.Features || "").split(",").filter(Boolean);
             return (
-              <div key={p.ID} style={{
+              <div key={p.ID} className="plan-card" style={{
                 position: "relative", borderRadius: 16, padding: "30px 26px",
                 background: popular ? "#111713" : C.panel,
                 border: popular ? `2px solid ${C.green}` : `1px solid ${C.border}`,
+                ...staggerStyle(visible, i, 100),
               }}>
                 {popular && (
-                  <div style={{
+                  <div className="popular-badge" style={{
                     position: "absolute", top: -13, left: 26, background: C.green, color: "#0d1210",
                     fontSize: 11, fontWeight: 700, padding: "4px 12px", borderRadius: 20,
                   }}>
@@ -65,20 +66,27 @@ export default function Plans({ onBook }) {
                     </div>
                   ))}
                 </div>
-                <button onClick={() => onBook(p.Name)} style={{
-                  width: "100%", background: popular ? C.green : "transparent",
+                <button onClick={() => onBook(p.Name)} className="ironfit-btn" style={{
+                  width: "100%", background: popular ? `linear-gradient(135deg, ${C.green}, ${C.greenDark})` : "transparent",
                   color: popular ? "#0d1210" : C.text,
                   border: popular ? "none" : `1px solid ${C.borderLight}`,
                   borderRadius: 9, padding: "12px 0", fontSize: 14, fontWeight: 700,
-                  cursor: "pointer", fontFamily: "'Inter', sans-serif",
+                  cursor: "pointer", fontFamily: "'Inter', sans-serif", position: "relative", overflow: "hidden",
                 }}>
-                  Choose Plan
+                  <span style={{ position: "relative", zIndex: 1 }}>Choose Plan</span>
                 </button>
               </div>
             );
           })}
         </div>
       </div>
+
+      <style>{`
+        .plan-card { transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease; }
+        .plan-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.35); }
+        @keyframes badgePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(139,236,63,0.4); } 50% { box-shadow: 0 0 0 6px rgba(139,236,63,0); } }
+        .popular-badge { animation: badgePulse 2.4s ease-in-out infinite; }
+      `}</style>
     </section>
   );
 }

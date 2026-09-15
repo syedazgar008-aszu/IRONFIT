@@ -98,12 +98,12 @@ export default function BookingModal({ open, onClose, presetService }) {
 
             {status === "error" && <div style={{ color: C.danger, fontSize: 13 }}>Something went wrong. Please try again.</div>}
 
-            <button type="submit" disabled={status === "sending"} style={{
-              background: C.green, color: "#0d1210", border: "none", borderRadius: 9,
+            <button type="submit" disabled={status === "sending"} className="ironfit-btn" style={{
+              background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`, color: "#0d1210", border: "none", borderRadius: 9,
               padding: "12px 0", fontSize: 14.5, fontWeight: 700, cursor: "pointer", marginTop: 4,
-              opacity: status === "sending" ? 0.6 : 1,
+              opacity: status === "sending" ? 0.6 : 1, position: "relative", overflow: "hidden",
             }}>
-              {status === "sending" ? "Booking..." : "Book Now"}
+              <span style={{ position: "relative", zIndex: 1 }}>{status === "sending" ? "Booking..." : "Book Now"}</span>
             </button>
           </form>
         )}

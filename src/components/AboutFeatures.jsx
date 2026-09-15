@@ -1,7 +1,8 @@
 import React from "react";
 import { Dumbbell, UserCheck, Clock, ShieldCheck } from "lucide-react";
 import { C, heading } from "../theme";
-import { useReveal, revealStyle } from "../hooks/useReveal";
+import { useReveal, revealStyle, staggerStyle } from "../hooks/useReveal";
+import { useCountUp } from "../hooks/useCountUp";
 
 const FEATURES = [
   { icon: Dumbbell, title: "Modern Equipment", sub: "State-of-the-art fitness gear" },
@@ -16,13 +17,15 @@ export function FeaturesStrip() {
     <div ref={ref} style={{
       maxWidth: 1200, margin: "0 auto", padding: "36px 24px",
       display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20,
-      ...revealStyle(visible),
     }}>
-      {FEATURES.map((f) => {
+      {FEATURES.map((f, i) => {
         const Icon = f.icon;
         return (
-          <div key={f.title} style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <div style={{
+          <div key={f.title} className="feature-item" style={{
+            display: "flex", alignItems: "center", gap: 14,
+            ...staggerStyle(visible, i, 90),
+          }}>
+            <div className="feature-icon" style={{
               width: 44, height: 44, borderRadius: 11, background: "#8bec3f14",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
@@ -35,16 +38,34 @@ export function FeaturesStrip() {
           </div>
         );
       })}
+      <style>{`
+        .feature-icon { transition: transform .3s cubic-bezier(.2,.8,.2,1), background .3s ease; }
+        .feature-item:hover .feature-icon { transform: scale(1.1) rotate(-4deg); background: #8bec3f26; }
+      `}</style>
     </div>
   );
 }
 
+// Stat with an integer target — used to drive the count-up animation.
+// Non-numeric suffix (+ / %) is appended after counting finishes.
 const STATS = [
-  { value: "5+", label: "Years Experience" },
-  { value: "2,400+", label: "Happy Members" },
-  { value: "15+", label: "Professional Trainers" },
-  { value: "100%", label: "Clean & Safe" },
+  { target: 5, suffix: "+", label: "Years Experience" },
+  { target: 2400, suffix: "+", label: "Happy Members" },
+  { target: 15, suffix: "+", label: "Professional Trainers" },
+  { target: 100, suffix: "%", label: "Clean & Safe" },
 ];
+
+function StatItem({ target, suffix, label }) {
+  const [ref, value] = useCountUp(target, 1400);
+  return (
+    <div ref={ref}>
+      <div style={{ ...heading, fontSize: 26, fontWeight: 700, color: C.green, fontVariantNumeric: "tabular-nums" }}>
+        {value.toLocaleString("en-IN")}{suffix}
+      </div>
+      <div style={{ color: C.muted, fontSize: 13 }}>{label}</div>
+    </div>
+  );
+}
 
 export function About() {
   const [ref, visible] = useReveal();
@@ -57,7 +78,7 @@ export function About() {
       }} className="about-grid">
         <div style={{
           borderRadius: 18, overflow: "hidden", aspectRatio: "4/5",
-          backgroundImage: `url('https://images.unsplash.com/photo-1584863231364-2edc166de576?q=80&w=1000&auto=format&fit=crop')`,
+          backgroundImage: `url('https://images.unsplash.com/photo-1584863231364-2edc166de576?q=65&w=800&auto=format&fit=crop')`,
           backgroundSize: "cover", backgroundPosition: "center",
         }} />
         <div>
@@ -71,12 +92,7 @@ export function About() {
             beginners to athletes.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
-            {STATS.map((s) => (
-              <div key={s.label}>
-                <div style={{ ...heading, fontSize: 26, fontWeight: 700, color: C.green }}>{s.value}</div>
-                <div style={{ color: C.muted, fontSize: 13 }}>{s.label}</div>
-              </div>
-            ))}
+            {STATS.map((s) => <StatItem key={s.label} {...s} />)}
           </div>
         </div>
       </div>

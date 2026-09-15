@@ -1,18 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { C, fontImport } from "./theme";
+import { buttonStyles } from "./components/Button";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import { FeaturesStrip, About } from "./components/AboutFeatures";
 import Classes from "./components/Classes";
 import Plans from "./components/Plans";
-import Trainers from "./components/Trainers";
-import Gallery from "./components/Gallery";
-import Reviews from "./components/Reviews";
-import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import BookingModal from "./components/BookingModal";
 import FloatingContact from "./components/FloatingContact";
 import { DEMO } from "./api";
+
+// Below-the-fold sections are code-split so the browser only has to parse
+// and run the Hero/Classes/Plans bundle to get the page interactive —
+// these chunks load in the background right after, well before the user
+// scrolls down to them. This is the single biggest lever for a fast first
+// paint on a long single-page site like this.
+const Trainers = lazy(() => import("./components/Trainers"));
+const Gallery = lazy(() => import("./components/Gallery"));
+const Reviews = lazy(() => import("./components/Reviews"));
+const Contact = lazy(() => import("./components/Contact"));
+
+// Minimal, layout-matching fallback — avoids a layout jump (CLS) while a
+// lazy chunk is still loading in on a slow connection.
+function SectionFallback({ height = 400 }) {
+  return <div style={{ height, background: C.bg }} />;
+}
 
 export default function App() {
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -27,10 +40,17 @@ export default function App() {
     <div style={{ background: C.bg, minHeight: "100vh" }}>
       <style>{`
         ${fontImport}
+        ${buttonStyles}
         * { box-sizing: border-box; }
-        body { margin: 0; }
+        body { margin: 0; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
         html { scroll-behavior: smooth; }
         input:focus, select:focus, textarea:focus { border-color: ${C.green} !important; }
+        img { max-width: 100%; display: block; }
+        ::selection { background: rgba(139,236,63,0.3); color: #fff; }
+        /* Respect users who've asked the OS for reduced motion — accessibility + perf */
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
       `}</style>
 
       {DEMO && (
@@ -48,10 +68,20 @@ export default function App() {
       <About />
       <Classes onBook={() => openBooking()} />
       <Plans onBook={openBooking} />
-      <Trainers />
-      <Gallery />
-      <Reviews />
-      <Contact />
+
+      <Suspense fallback={<SectionFallback height={500} />}>
+        <Trainers />
+      </Suspense>
+      <Suspense fallback={<SectionFallback height={500} />}>
+        <Gallery />
+      </Suspense>
+      <Suspense fallback={<SectionFallback height={450} />}>
+        <Reviews />
+      </Suspense>
+      <Suspense fallback={<SectionFallback height={450} />}>
+        <Contact />
+      </Suspense>
+
       <Footer />
 
       <FloatingContact />

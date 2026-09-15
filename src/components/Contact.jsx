@@ -22,7 +22,7 @@ export default function Contact() {
     e.preventDefault();
     await apiPost("createEnquiry", { ...form, Source: "Website Contact Form" });
     setSent(true);
-  }
+  };
 
   const phone = settings.phone || "+91 00000 00000";
   const whatsapp = settings.whatsapp || phone;
@@ -74,11 +74,12 @@ export default function Contact() {
                 <input required placeholder="Phone number" value={form.Phone} onChange={(e) => setForm({ ...form, Phone: e.target.value })} style={inputStyle} />
                 <input type="email" placeholder="Email (optional)" value={form.Email} onChange={(e) => setForm({ ...form, Email: e.target.value })} style={inputStyle} />
                 <textarea required rows={3} placeholder="How can we help?" value={form.Message} onChange={(e) => setForm({ ...form, Message: e.target.value })} style={{ ...inputStyle, resize: "vertical" }} />
-                <button type="submit" style={{
-                  background: C.green, color: "#0d1210", border: "none", borderRadius: 8,
+                <button type="submit" className="ironfit-btn" style={{
+                  background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`, color: "#0d1210", border: "none", borderRadius: 8,
                   padding: "11px 0", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  position: "relative", overflow: "hidden",
                 }}>
-                  Send Enquiry
+                  <span style={{ position: "relative", zIndex: 1 }}>Send Enquiry</span>
                 </button>
               </form>
             )}

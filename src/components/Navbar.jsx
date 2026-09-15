@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Dumbbell, Menu, X } from "lucide-react";
 import { C, heading } from "../theme";
 
@@ -15,12 +15,24 @@ const LINKS = [
 export default function Navbar({ onBook }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const ticking = useRef(false);
+
+  // rAF-throttled scroll listener — reads scrollY at most once per frame,
+  // so fast scrolling never triggers a re-render pile-up (this is the #1
+  // cause of scroll jank on marketing sites).
+  const onScroll = useCallback(() => {
+    if (ticking.current) return;
+    ticking.current = true;
+    requestAnimationFrame(() => {
+      setScrolled(window.scrollY > 20);
+      ticking.current = false;
+    });
+  }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [onScroll]);
 
   const go = (href) => {
     setOpen(false);
@@ -46,11 +58,12 @@ export default function Navbar({ onBook }) {
           <div style={{ ...heading, fontWeight: 700, fontSize: 17, color: C.text, letterSpacing: 0.3 }}>IRONFIT</div>
         </div>
 
-        <div style={{ display: "flex", gap: 30 }} className="nav-links-desktop">
+        <div style={{ display: "flex", gap: 6 }} className="nav-links-desktop">
           {LINKS.map((l) => (
-            <button key={l.href} onClick={() => go(l.href)} style={{
+            <button key={l.href} onClick={() => go(l.href)} className="nav-link" style={{
               background: "none", border: "none", color: C.muted, fontSize: 14,
               cursor: "pointer", fontFamily: "'Inter', sans-serif", fontWeight: 500,
+              padding: "8px 12px", position: "relative",
             }}>
               {l.label}
             </button>
@@ -58,12 +71,12 @@ export default function Navbar({ onBook }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <button onClick={onBook} className="book-btn-desktop" style={{
-            background: C.green, color: "#0d1210", border: "none", borderRadius: 8,
+          <button onClick={onBook} className="book-btn-desktop ironfit-btn" style={{
+            background: `linear-gradient(135deg, ${C.green}, ${C.greenDark})`, color: "#0d1210", border: "none", borderRadius: 8,
             padding: "9px 18px", fontSize: 13.5, fontWeight: 700, cursor: "pointer",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Inter', sans-serif", position: "relative", overflow: "hidden",
           }}>
-            Book Appointment
+            <span style={{ position: "relative", zIndex: 1 }}>Book Appointment</span>
           </button>
           <button onClick={() => setOpen(!open)} className="menu-btn-mobile" style={{
             background: "none", border: "none", color: C.text, cursor: "pointer", display: "none",
@@ -73,8 +86,8 @@ export default function Navbar({ onBook }) {
         </div>
       </div>
 
-      {open && (
-        <div style={{ background: C.bg, borderTop: `1px solid ${C.border}`, padding: "12px 24px 20px" }}>
+      <div className={`mobile-menu ${open ? "mobile-menu-open" : ""}`} style={{ background: C.bg, borderTop: `1px solid ${C.border}`, padding: "0 24px", overflow: "hidden" }}>
+        <div style={{ padding: "12px 0 20px" }}>
           {LINKS.map((l) => (
             <button key={l.href} onClick={() => go(l.href)} style={{
               display: "block", width: "100%", textAlign: "left", background: "none", border: "none",
@@ -90,13 +103,28 @@ export default function Navbar({ onBook }) {
             Book Appointment
           </button>
         </div>
-      )}
+      </div>
 
       <style>{`
         @media (max-width: 860px) {
           .nav-links-desktop, .book-btn-desktop { display: none !important; }
           .menu-btn-mobile { display: block !important; }
         }
+        .nav-link { transition: color .2s ease; }
+        .nav-link::after {
+          content: "";
+          position: absolute;
+          left: 12px; right: 12px; bottom: 2px;
+          height: 2px;
+          background: ${C.green};
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform .25s cubic-bezier(.2,.8,.2,1);
+        }
+        .nav-link:hover { color: ${C.text} !important; }
+        .nav-link:hover::after { transform: scaleX(1); }
+        .mobile-menu { max-height: 0; transition: max-height .35s ease; }
+        .mobile-menu-open { max-height: 400px; }
       `}</style>
     </div>
   );
